@@ -1,0 +1,51 @@
+// Define pins for ultrasonic sensor
+const int trigPin = 9;
+const int echoPin = 10;
+
+// Set a threshold distance in centimeters
+const int thresholdDistance = 15;
+
+// Variable to track state
+bool objectPresent = false;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  // Measure distance
+  long duration;
+  int distance;
+
+  // Send ultrasonic pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read echo time
+  duration = pulseIn(echoPin, HIGH);
+
+  // Convert time to distance (cm)
+  distance = duration * 0.034 / 2;
+
+  if (!objectPresent && distance < thresholdDistance) {
+    // Object just entered
+    Serial.println("Object Detected & Present");
+    objectPresent = true;
+  } 
+  else if (objectPresent && distance >= thresholdDistance) {
+    // Object just left
+    Serial.println("Detected Object Is Gone");
+    objectPresent = false;
+  } 
+  else if (!objectPresent) {
+    // Still waiting for object
+    Serial.println("Waiting To Detect An Object");
+  }
+
+  delay(200);  // Short delay to stabilize readings
+}
